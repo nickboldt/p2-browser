@@ -67,6 +67,7 @@ public class InstallableUnitFilterComposite
         {
             public void modifyText( ModifyEvent e )
             {
+            	System.out.println("Begin modify listener");
                 String pattern = trim( filterText.getText() );
                 if ( pattern != null )
                 {
@@ -105,6 +106,8 @@ public class InstallableUnitFilterComposite
                 {
                     listener.filterChanged( e2 );
                 }
+            	System.out.println("End modify listener");
+
             }
         };
 

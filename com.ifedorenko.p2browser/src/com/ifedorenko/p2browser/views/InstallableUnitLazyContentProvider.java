@@ -17,20 +17,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.ifedorenko.p2browser.model.IGroupedInstallableUnits;
 
-public class InstallableUnitContentProvider
-    implements ITreeContentProvider
+abstract class InstallableUnitLazyContentProvider
+    implements ILazyTreeContentProvider
 {
     private final TreeViewer treeViewer;
 
     private Map<IInstallableUnit, InstallableUnitNode> nodes;
 
-    public InstallableUnitContentProvider( TreeViewer treeViewer )
+    public InstallableUnitLazyContentProvider( TreeViewer treeViewer )
     {
         this.treeViewer = treeViewer;
     }
@@ -46,11 +46,7 @@ public class InstallableUnitContentProvider
         nodes = new HashMap<IInstallableUnit, InstallableUnitNode>();
     }
 
-    public Object[] getChildren( Object parentElement ) {
-    	return getCachedChildren(parentElement, 20000);
-    }
-    
-    public Object[] getChildrenInternal( Object parentElement )
+    protected Object[] getChildren( Object parentElement )
     {
         if ( parentElement instanceof IGroupedInstallableUnits )
         {
@@ -78,7 +74,7 @@ public class InstallableUnitContentProvider
     	if( cachedExpiration.get(parentElement) == null 
     			|| cachedExpiration.get(parentElement).longValue() < System.currentTimeMillis() 
     			|| cachedChildren.get(parentElement) == null ) {
-    		Object[] elements = getChildrenInternal( parentElement );
+    		Object[] elements = getChildren( parentElement );
     		cachedChildren.put(parentElement, elements);
     		cachedExpiration.put(parentElement, System.currentTimeMillis()+duration);
     		return elements;
@@ -87,6 +83,33 @@ public class InstallableUnitContentProvider
     }
     
     
+    @Override
+    public void updateElement( Object parentElement, int index )
+    {
+        Object[] elements = getCachedChildren( parentElement, 20000 );
+        if ( elements != null && elements.length > index )
+        {
+            Object element = elements[index];
+            treeViewer.replace( parentElement, index, element );
+
+            Object[] grandChildren = getCachedChildren( element , 20000);
+            if ( grandChildren != null )
+            {
+                treeViewer.setChildCount( element, grandChildren.length );
+            }
+        }
+    }
+
+    @Override
+    public void updateChildCount( Object element, int currentChildCount )
+    {
+        Object[] elements = getChildren( element );
+        if ( elements != null && elements.length != currentChildCount )
+        {
+            treeViewer.setChildCount( element, elements.length );
+        }
+    }
+
     @Override
     public Object getParent( Object element )
     {
@@ -108,16 +131,5 @@ public class InstallableUnitContentProvider
         }
         return nodes.toArray();
     }
-
-	@Override
-	public Object[] getElements(Object inputElement) {
-		return getChildren(inputElement);
-	}
-
-	@Override
-	public boolean hasChildren(Object element) {
-		Object[] ret = getChildren(element);
-		return ret != null && ret.length > 0; 
-	}
 
 }
