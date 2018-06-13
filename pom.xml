@@ -15,7 +15,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <groupId>com.ifedorenko.p2-browser</groupId>
   <artifactId>p2-browser</artifactId>
   <packaging>pom</packaging>
@@ -31,9 +31,15 @@
   </modules>
 
   <repositories>
+    <!-- compilation error using Photon -->
+    <!-- <repository>
+      <id>eclipse-4.8</id>
+      <url>http://download.eclipse.org/eclipse/updates/4.8milestones/</url>
+      <layout>p2</layout>
+    </repository> -->
     <repository>
       <id>eclipse-4.7</id>
-      <url>http://download.eclipse.org/eclipse/updates/4.7</url>
+      <url>http://download.eclipse.org/eclipse/updates/4.7/R-4.7.3a-201803300640/</url>
       <layout>p2</layout>
     </repository>
   </repositories>
